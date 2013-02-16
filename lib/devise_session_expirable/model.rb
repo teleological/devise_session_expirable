@@ -53,7 +53,7 @@ module Devise #:nodoc:
       private
 
       def remember_exists_and_not_expired?
-        return false unless respond_to?(:remember_created_at)
+        return false unless respond_to?(:remember_expired?)
         remember_created_at && !remember_expired?
       end
 
