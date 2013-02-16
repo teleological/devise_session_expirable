@@ -2,7 +2,7 @@
 
 All good things come to an end: At least that's how it's supposed to work.
 
-SessionExpirable is an enhanced version of Devise's +timeoutable+ module
+SessionExpirable is an enhanced version of Devise[https://github.com/plataformatec/devise]'s +timeoutable+ module
 that ensures that no session is allowed to last forever.
 
 Like Devise +timeoutable+, SessionExpirable adds a timestamp to sessions
