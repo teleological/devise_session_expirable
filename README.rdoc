@@ -1,0 +1,62 @@
+= SessionExpirable
+
+All good things come to an end: At least that's how it's supposed to work.
+
+SessionExpirable is an enhanced version of Devise's +timeoutable+ module
+that ensures that no session is allowed to last forever.
+
+Like Devise +timeoutable+, SessionExpirable adds a timestamp to sessions
+indicating the last time that the session was used, and checks these
+timestamps when a session is used to sign a user in. A configurable
++timeout_in+ option controls how long inactive sessions are considered
+valid.
+
+== Differences with Devise Timeoutable
+
+When +timeoutable+ reads a session that does not contain a timestamp,
+timestamp validation is bypassed: A session without a timestamp will
+never be considered as having timed out.
+
+In order to prevent the abuse of non-expiring sessions, SessionExpirable
+treats sessions without timestamps as having already expired.
+
+One other difference with +timeoutable+ is that SessionExpirable
+does not support invalidation of authentication tokens from the
+devise +token_authenticatable+ module when a request with a valid
+authentication token is accompanied by an expired session.
+
+== Migrating to SessionExpirable
+
+For a less disruptive migration from sessions without timestamps, it is
+possible to set a +default_last_request_at+ value, which will be used in
+place of the timestamp for sessions which don't have one. After the
++timeout_in+ interval passes, these legacy sessions will expire and
+the +default_last_request_at+ value can be unset.
+
+== Alternatives
+
+As long as you reset your secret_token when configuring Devise
++timeoutable+ to your rails application and avoid authenticating
+for actions which set +devise.skip_trackable+ in the rack environment,
+you will have eliminated at least two possible sources of non-expiring
+sessions.
+
+== Acknowledgements
+
+This module was adapted from Devise's +timeoutable+ module.
+
+Thanks to the creators and maintainers of Devise and Warden for a 
+truly extensible authentication library.
+
+== Contributing to devise_session_expirable
+
+* Fork the project.
+* Start a feature/bugfix branch.
+* Commit and push.
+* Make sure to add tests.
+
+== Copyright
+
+Copyright (c) 2013 Riley Lynch, Teleological Software, LLC.
+See LICENSE.txt for further details.
+
