@@ -25,13 +25,41 @@ does not support invalidation of authentication tokens from the
 devise +token_authenticatable+ module when a request with a valid
 authentication token is accompanied by an expired session.
 
-== Migrating to SessionExpirable
+== Configuration
 
-For a less disruptive migration from sessions without timestamps, it is
-possible to set a +default_last_request_at+ value, which will be used in
-place of the timestamp for sessions which don't have one. After the
-+timeout_in+ interval passes, these legacy sessions will expire and
-the +default_last_request_at+ value can be unset.
+Add +devise_session_expirable+ to your Gemfile:
+
+  gem 'devise_session_expirable'
+
+Include +:session_expirable+ in your devise user model declaration:
+
+  class User < ActiveRecord::Base
+    devise :database_authenticatable, :session_expirable # ...
+  end
+
+Then update the Devise initializer:
+
+  Devise.setup do |config|
+    # ...
+    config.timeout_in = 15.minutes
+    config.default_last_request_at = Time.parse('2013-02-16T00:00:00Z')
+    # ...
+  end
+
+== Migrating from non-expiring sessions
+
+The +default_last_request_at+ option is intended to enable a less
+disruptive migration if sessions without timestamps have already been
+issued. The configured value will be used in place of the timestamp
+for sessions which don't have one.
+
+If +default_last_request_at+ is configured, it should be set to a fixed
+date/time, ideally matching the time of deployment. If set to a dynamic
+time (e.g. Time.now), the lifetime of sessions without timestamps will
+be extended every time Rails is initialized.
+
+After the +timeout_in+ interval passes, any legacy sessions will have
+expired and +default_last_request_at+ can be unset.
 
 == Alternatives
 
