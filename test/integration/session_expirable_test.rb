@@ -43,7 +43,7 @@ class SessionExpirableIntegrationTest < ActionDispatch::IntegrationTest
     get clear_timeout_user_path(user)
 
     get users_path
-    assert_redirected_to users_path
+    assert_redirected_to new_user_session_path
     assert_not warden.authenticated?(:user)
   end
 
@@ -53,27 +53,39 @@ class SessionExpirableIntegrationTest < ActionDispatch::IntegrationTest
     assert_not_nil last_request_at
 
     get users_path
-    assert_redirected_to users_path
+    assert_redirected_to new_user_session_path
     assert_not warden.authenticated?(:user)
   end
 
-  test 'time out is not triggered on sign out' do
+  test 'sign out when timed out is ignored' do
     user = sign_in_as_user
     get expire_user_path(user)
 
     get destroy_user_session_path
-
     assert_response :redirect
     assert_redirected_to root_path
+    assert_not warden.authenticated?(:user)
     follow_redirect!
-    assert_contain 'Signed out successfully'
+    assert_not_contain 'Signed out successfully'
+  end
+
+  test 'expired session is not extended by sign in page' do
+    user = sign_in_as_user
+    get expire_user_path(user)
+    assert warden.authenticated?(:user)
+
+    get "/users/sign_in"
+    assert_response :success
+    assert_contain 'Sign in'
+    assert_not warden.authenticated?(:user)
   end
 
   test 'time out is not triggered on sign in' do
     user = sign_in_as_user
     get expire_user_path(user)
 
-    post "/users/sign_in", :email => user.email, :password => "123456"
+    post "/users/sign_in",
+      :user => { :email => user.email, :password => "12345678" }
 
     assert_response :redirect
     follow_redirect!
@@ -90,7 +102,7 @@ class SessionExpirableIntegrationTest < ActionDispatch::IntegrationTest
 
     begin
       get admins_path
-      assert_redirected_to admins_path
+      assert_redirected_to new_admin_session_path
       assert_not warden.authenticated?(:admin)
     ensure
       Admin.send(:remove_method, :reset_authentication_token!)
@@ -108,7 +120,7 @@ class SessionExpirableIntegrationTest < ActionDispatch::IntegrationTest
 
       get expire_user_path(user)
       get users_path
-      assert_redirected_to users_path
+      assert_redirected_to new_user_session_path
       assert_not warden.authenticated?(:user)
     end
   end
@@ -120,21 +132,7 @@ class SessionExpirableIntegrationTest < ActionDispatch::IntegrationTest
       user = sign_in_as_user
 
       get expire_user_path(user)
-      get root_path
-      follow_redirect!
-      assert_contain 'Session expired!'
-    end
-  end
-
-  test 'error message with i18n with double redirect' do
-    store_translations :en, :devise => {
-      :failure => { :user => { :timeout => 'Session expired!' } }
-    } do
-      user = sign_in_as_user
-
-      get expire_user_path(user)
       get users_path
-      follow_redirect!
       follow_redirect!
       assert_contain 'Session expired!'
     end

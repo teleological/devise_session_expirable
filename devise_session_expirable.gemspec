@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "devise_session_expirable"
-  s.version = "0.1.1"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Riley Lynch"]
-  s.date = "2013-02-16"
+  s.date = "2013-03-11"
   s.description = "devise_session_expirable is an enhanced version of devise's timeoutable module that ensures that no session is allowed to last forever."
   s.email = "oss+expirable@teleological.net"
   s.extra_rdoc_files = [

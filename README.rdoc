@@ -20,10 +20,19 @@ never be considered as having timed out.
 In order to prevent the abuse of non-expiring sessions, SessionExpirable
 treats sessions without timestamps as having already expired.
 
-One other difference with +timeoutable+ is that SessionExpirable
-does not support invalidation of authentication tokens from the
-devise +token_authenticatable+ module when a request with a valid
-authentication token is accompanied by an expired session.
+Another difference is that in the case of a timeout, +timeoutable+
+prevents other authentication strategies from being tried, although
+it has custom logic to allow Devise +rememberable+ to work in spite of a
+timed-out session.
+
+SessionExpirable does not allow a timed-out session to interfere with any
+authentication strategies that are configured. One consequence is that
+SessionExpirable does not support invalidation of authentication tokens
+from the Devise +token_authenticatable+ module when a request with a
+valid authentication token is accompanied by an expired session.
+
+One final difference is that SessionExpirable does not invoke the Devise
+FailureApp for requests that do not require authentication.
 
 == Configuration
 
